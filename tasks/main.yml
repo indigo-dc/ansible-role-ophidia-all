@@ -1,0 +1,45 @@
+---
+- name: Install necessary packages
+  yum: name={{ item }} state=latest update_cache=yes
+  with_items:
+    - epel-release
+    - git
+    - gcc-c++
+    - curl
+    - flex-devel
+    - compat-guile18
+    - compat-guile18-devel
+    - guile-devel
+    - graphviz-devel
+    - gsl-devel
+    - gsl
+    - gtk2
+    - gtk2-devel
+    - jansson
+    - jansson-devel
+    - libcurl-devel
+    - libssh2-devel
+    - libtool-ltdl
+    - libtool-ltdl-devel
+    - libxml2
+    - libxml2-devel
+    - mpich
+    - mpich-devel
+    - mysql-community-devel
+    - openssl
+    - openssl-devel
+    - policycoreutils-python
+    - readline
+    - readline-devel
+    - sudo
+    - wget
+    - indent
+    - lcov
+    - python-pip
+    - httpd
+    - php
+    - mysql-community-server
+    - munge
+    - munge-devel
+    - munge-libs
+
