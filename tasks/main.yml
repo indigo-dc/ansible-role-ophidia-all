@@ -56,7 +56,7 @@
     - munge-libs
 
 - name: install slurm and ophidia rpms (TEMPORARY from non repo url)
-  yum: name={{ item }} state=present
+  yum: name={{ item }} state=present validate_certs=no
   with_items:
     - '{{ slurm_rpms }}slurm-16.05.2-1.el7.centos.x86_64.rpm'
     - '{{ slurm_rpms }}slurm-munge-16.05.2-1.el7.centos.x86_64.rpm'
