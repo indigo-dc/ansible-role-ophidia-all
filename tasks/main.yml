@@ -55,3 +55,24 @@
     - munge-devel
     - munge-libs
 
+- name: install slurm and ophidia rpms (TEMPORARY from non repo url)
+  yum: name={{ item }} state=present
+  with_items:
+    - '{{ slurm_rpms }}slurm-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-munge-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-openlava-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-pam_slurm-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-perlapi-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-plugins-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-seff-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-sjobexit-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-sjstat-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-slurmdb-direct-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-slurmdbd-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-sql-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}slurm-torque-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ oph_rpms }}ophidia-analytics-framework-0.10.2-0.el7.centos.x86_64.rpm'
+    - '{{ oph_rpms }}ophidia-primitives-0.10.2-0.el7.centos.x86_64.rpm'
+    - '{{ oph_rpms }}ophidia-server-0.10.2-0.el7.centos.x86_64.rpm'
+    - '{{ oph_rpms }}ophidia-terminal-0.10.2-0.el7.centos.x86_64.rpm'
+
