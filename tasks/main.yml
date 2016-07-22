@@ -1,9 +1,13 @@
 ---
+- name: Install epel-elease
+  yum: name=epel-release state=latest update_cache=yes
+
+- name: Install mysql-community-release
+  yum: name=http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm state=present
+
 - name: Install necessary packages
   yum: name={{ item }} state=latest update_cache=yes
   with_items:
-    - http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm
-    - epel-release
     - git
     - gcc-c++
     - curl
