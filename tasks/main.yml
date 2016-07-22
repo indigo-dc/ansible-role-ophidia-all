@@ -5,6 +5,13 @@
 - name: Install mysql-community-release
   yum: name=http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm state=present
 
+- name: get the indigo repository conf
+  get_url: url={{ item.url }} dest={{ item.dest }}
+  with_items:
+    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing-base.repo', dest: '/etc/yum.repos.d/indigo1-testing-base.repo' }
+    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing-third-party.repo', dest: '/etc/yum.repos.d/indigo1-testing-third-party.repo' }
+    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing-updates.repo', dest: '/etc/yum.repos.d/indigo1-testing-updates.repo' }
+
 - name: Install necessary packages
   yum: name={{ item }} state=latest update_cache=yes
   with_items:
