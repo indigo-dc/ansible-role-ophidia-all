@@ -76,3 +76,10 @@
     - '{{ oph_rpms }}ophidia-server-0.10.2-0.el7.centos.x86_64.rpm'
     - '{{ oph_rpms }}ophidia-terminal-0.10.2-0.el7.centos.x86_64.rpm'
 
+- name: Copy template of ophidia server server.conf
+  template:
+    src=server.conf.j2
+    dest=/usr/local/ophidia/oph-server/etc/server.conf
+    mode=0644
+    owner=root
+    group=root
