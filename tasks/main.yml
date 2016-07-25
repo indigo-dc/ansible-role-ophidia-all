@@ -23,10 +23,14 @@
     - compat-guile18-devel
     - guile-devel
     - graphviz-devel
+    - gsoap
+    - gsoap-devel
     - gsl-devel
     - gsl
     - gtk2
     - gtk2-devel
+    - hdf5-mpich
+    - hdf5-mpich-devel
     - jansson
     - jansson-devel
     - libcurl-devel
@@ -38,6 +42,8 @@
     - mpich
     - mpich-devel
     - mysql-community-devel
+    - netcdf-mpich.x86_64
+    - netcdf-mpich-devel
     - openssl
     - openssl-devel
     - policycoreutils-python
@@ -71,6 +77,7 @@
     - '{{ slurm_rpms }}slurm-slurmdbd-16.05.2-1.el7.centos.x86_64.rpm'
     - '{{ slurm_rpms }}slurm-sql-16.05.2-1.el7.centos.x86_64.rpm'
     - '{{ slurm_rpms }}slurm-torque-16.05.2-1.el7.centos.x86_64.rpm'
+    - '{{ slurm_rpms }}libmatheval-1.1.11-5.el7.centos.x86_64.rpm'
     - '{{ oph_rpms }}ophidia-analytics-framework-0.10.2-0.el7.centos.x86_64.rpm'
     - '{{ oph_rpms }}ophidia-primitives-0.10.2-0.el7.centos.x86_64.rpm'
     - '{{ oph_rpms }}ophidia-server-0.10.2-0.el7.centos.x86_64.rpm'
@@ -80,7 +87,7 @@
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
 
 - name: Unarchive
-  unarchive: src={{ item }} dest=/usr/local copy=no
+  unarchive: src={{ item }} dest=/usr/local owner=root group=root copy=no
   with_items:
     - http://ftp.gnu.org/gnu/libmatheval/libmatheval-1.1.11.tar.gz
     - http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.17.tar.gz
