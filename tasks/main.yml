@@ -83,3 +83,15 @@
     mode=0644
     owner=root
     group=root
+
+- name: Creating root SSL cert
+  command: >
+    openssl req
+      -newkey rsa:1024
+      -passout pass:abcd
+      -subj "/"
+      -sha1
+      -keyout rootkey.pem
+      -out rootreq.pem
+  args:
+    chdir: /usr/local/ophidia/oph-server/etc/cert/
