@@ -85,7 +85,7 @@
     - http://ftp.gnu.org/gnu/libmatheval/libmatheval-1.1.11.tar.gz
     - http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.17.tar.gz
     - ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz
-    - http://www.lip.pt/~david/gsoap_2.8.27.zip
+    - http://www.lip.pt/~david/gsoap_2.8.27.tgz
 
 - name: Copy template of ophidia server server.conf
   template:
