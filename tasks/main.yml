@@ -76,6 +76,17 @@
     - '{{ oph_rpms }}ophidia-server-0.10.2-0.el7.centos.x86_64.rpm'
     - '{{ oph_rpms }}ophidia-terminal-0.10.2-0.el7.centos.x86_64.rpm'
 
+- name: Create user for Ophidia framwork
+  user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_type=dsa ssh_key_bits=2048
+
+- name: Unarchive
+  unarchive: src={{ item }} dest=/usr/local copy=no
+  with_items:
+    - http://ftp.gnu.org/gnu/libmatheval/libmatheval-1.1.11.tar.gz
+    - http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.17.tar.gz
+    - ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz
+    - http://www.lip.pt/~david/gsoap_2.8.27.zip
+
 - name: Copy template of ophidia server server.conf
   template:
     src=server.conf.j2
