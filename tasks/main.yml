@@ -151,6 +151,10 @@
 - name: Remove intermediate certs
   file: path={{ item }} state=absent
   with_items:
-    - /usr/local/ophidia/oph-server/etc/cert/server*
-    - /usr/local/ophidia/oph-server/etc/cert/root*
+    - /usr/local/ophidia/oph-server/etc/cert/rootcert.pem
+    - /usr/local/ophidia/oph-server/etc/cert/rootkey.pem
+    - /usr/local/ophidia/oph-server/etc/cert/rootreq.pem
+    - /usr/local/ophidia/oph-server/etc/cert/servercert.pem
+    - /usr/local/ophidia/oph-server/etc/cert/serverkey.pem
+    - /usr/local/ophidia/oph-server/etc/cert/serverreq.pem
     - /usr/local/ophidia/oph-server/etc/cert/cacert.srl
