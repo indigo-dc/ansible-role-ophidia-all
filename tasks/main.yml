@@ -13,7 +13,7 @@
     - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing-updates.repo', dest: '/etc/yum.repos.d/indigo1-testing-updates.repo' }
 
 - name: Install necessary packages
-  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=no
+  yum: name={{ item }} state=latest update_cache=yes
   with_items:
     - git
     - gcc-c++
@@ -34,7 +34,6 @@
     - jansson
     - jansson-devel
     - libcurl-devel
-    - libmatheval
     - libssh2-devel
     - libtool-ltdl
     - libtool-ltdl-devel
@@ -44,17 +43,33 @@
     - mpich-devel
     - mysql-community-devel
     - MySQL-python
-    - netcdf-mpich.x86_64
+    - netcdf-mpich
     - netcdf-mpich-devel
     - openssl
     - openssl-devel
+    - policycoreutils-python
+    - readline
+    - readline-devel
+    - sudo
+    - wget
+    - indent
+    - lcov
+    - python-pip
+    - httpd
+    - php
+    - mysql-community-server
+    - munge
+    - munge-devel
+    - munge-libs
+
+- name: 2nd set of packages - the ones from the indigo repos
+  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=no
+  with_items:
+    - libmatheval
     - ophidia-analytics-framework
     - ophidia-primitives
     - ophidia-server
     - ophidia-terminal
-    - policycoreutils-python
-    - readline
-    - readline-devel
     - slurm
     - slurm-munge
     - slurm-openlava
@@ -68,17 +83,7 @@
     - slurm-slurmdbd
     - slurm-sql
     - slurm-torque
-    - sudo
-    - wget
-    - indent
-    - lcov
-    - python-pip
-    - httpd
-    - php
-    - mysql-community-server
-    - munge
-    - munge-devel
-    - munge-libs
+
 
 #- name: install slurm and ophidia rpms (TEMPORARY from non repo url)
 #  yum: name={{ item }} state=present validate_certs=no
