@@ -242,6 +242,10 @@
 #####
 # TODO: for now the service will have to be started manually
 # will have to figure out the problems of centos7 systemd
+- name: mysql prepare system tables
+  command: /usr/bin/mysql-systemd-start pre
+  become: true
+  become_user: mysql
 
 - name: Start mysql_safe
   shell: /usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &
