@@ -66,9 +66,14 @@
     - munge-devel
     - munge-libs
 
-- name: 2nd set of packages slurm - the ones from the indigo repos
+- name: 2nd set of packages slurm ophidia and libmatheval - the ones from the indigo repos
   yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=yes
   with_items:
+    - libmatheval
+    - ophidia-analytics-framework
+    - ophidia-primitives
+    - ophidia-server
+    - ophidia-terminal
     - slurm
     - slurm-munge
     - slurm-openlava
@@ -82,15 +87,6 @@
     - slurm-slurmdbd
     - slurm-sql
     - slurm-torque
-
-- name: 3rd set of packages ophidia and libmatheval - the ones from the indigo repos
-  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=yes
-  with_items:
-    - libmatheval
-    - ophidia-analytics-framework
-    - ophidia-primitives
-    - ophidia-server
-    - ophidia-terminal
 
 #- name: install slurm and ophidia rpms (TEMPORARY from non repo url)
 #  yum: name={{ item }} state=present validate_certs=no
@@ -135,6 +131,14 @@
     owner=root
     group=root
 
+- name: Copy template of slurm.conf
+  template:
+    src=slurm.conf.j2
+    dest=/etc/slurm/slurm.conf
+    mode=0644
+    owner=root
+    group=root
+
 - name: Copy template of .my.cfn to ophi_user
   template:
     src=.my.cfn.j2
@@ -150,21 +154,6 @@
     mode=0600
     owner=root
     group=root
-
-- name: Start mysql service
-  service: name=mysql state=started enabled=yes
-
-- name: set the mysql root user passwd
-  mysql_user: name=root password={{ cert_passwd }}
-
-- name: create ophidia databases
-  mysql_db: name={{ item }} state=present
-  with_items:
-    - ophidiadb
-    - oph_dimensions
-
-- name: import ophidia analytics db
-  mysql_db: name=ophidiadb state=import target=/usr/local/ophidia/oph-cluster/oph-analytics-framework/etc/ophidiadb.sql
 
 - name: Make munge private key
   shell: dd if=/dev/urandom bs=1 count=1024 > /etc/munge/munge.key
@@ -249,3 +238,38 @@
     - /usr/local/ophidia/oph-server/etc/cert/serverkey.pem
     - /usr/local/ophidia/oph-server/etc/cert/serverreq.pem
     - /usr/local/ophidia/oph-server/etc/cert/cacert.srl
+
+#####
+# TODO: for now the service will have to be started manually
+# will have to figure out the problems of centos7 systemd
+
+- name: Start mysql_safe
+  shell: /usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &
+  args:
+    executable: /bin/bash
+
+- name: start munged
+  command: /usr/sbin/munged
+  become: true
+  become_user: munge
+
+- name: start slurmd
+  command: /usr/sbin/slurmd
+
+- name: start slurmctld
+  command: /usr/sbin/slurmctld
+
+####
+
+- name: set the mysql root user passwd
+  mysql_user: name=root password={{ cert_passwd }}
+
+- name: create ophidia databases
+  mysql_db: name={{ item }} state=present
+  with_items:
+    - ophidiadb
+    - oph_dimensions
+
+- name: import ophidia analytics db
+  mysql_db: name=ophidiadb state=import target=/usr/local/ophidia/oph-cluster/oph-analytics-framework/etc/ophidiadb.sql
+
