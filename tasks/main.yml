@@ -67,7 +67,7 @@
     - munge-libs
 
 - name: 2nd set of packages slurm - the ones from the indigo repos
-  yum: name={{ item }} state=latest update_cache=yes
+  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=yes
   with_items:
     - slurm
     - slurm-munge
@@ -84,7 +84,7 @@
     - slurm-torque
 
 - name: 3rd set of packages ophidia and libmatheval - the ones from the indigo repos
-  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=no
+  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=yes
   with_items:
     - libmatheval
     - ophidia-analytics-framework
