@@ -13,7 +13,7 @@
     - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing-updates.repo', dest: '/etc/yum.repos.d/indigo1-testing-updates.repo' }
 
 - name: Install necessary packages
-  yum: name={{ item }} state=latest update_cache=yes validate_certs=no
+  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=no
   with_items:
     - git
     - gcc-c++
