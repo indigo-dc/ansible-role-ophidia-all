@@ -149,7 +149,7 @@
 
 - name: Copy template of .my.cnf to root
   template:
-    src=.my.cfn.j2
+    src=.my.cnf.j2
     dest=/root/.my.cnf
     mode=0600
     owner=root
