@@ -62,14 +62,9 @@
     - munge-devel
     - munge-libs
 
-- name: 2nd set of packages - the ones from the indigo repos
-  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=no
+- name: 2nd set of packages slurm - the ones from the indigo repos
+  yum: name={{ item }} state=latest update_cache=yes
   with_items:
-    - libmatheval
-    - ophidia-analytics-framework
-    - ophidia-primitives
-    - ophidia-server
-    - ophidia-terminal
     - slurm
     - slurm-munge
     - slurm-openlava
@@ -84,6 +79,14 @@
     - slurm-sql
     - slurm-torque
 
+- name: 3rd set of packages ophidia and libmatheval - the ones from the indigo repos
+  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=no
+  with_items:
+    - libmatheval
+    - ophidia-analytics-framework
+    - ophidia-primitives
+    - ophidia-server
+    - ophidia-terminal
 
 #- name: install slurm and ophidia rpms (TEMPORARY from non repo url)
 #  yum: name={{ item }} state=present validate_certs=no
