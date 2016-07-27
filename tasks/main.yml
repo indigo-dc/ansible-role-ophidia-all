@@ -123,6 +123,15 @@
 - name: set the mysql root user passwd
   mysql_user: name=root password={{ cert_passwd }}
 
+- name: create ophidia databases
+  mysql_db: name={{ item }} state=present
+  with_items:
+    - ophidiadb
+    - oph_dimensions
+
+- name: import ophidia analytics db
+  mysql_db: name=ophidiadb state=import target=/usr/local/ophidia/oph-cluster/oph-analytics-framework/etc/ophidiadb.sql
+
 - name: Make munge private key
   shell: dd if=/dev/urandom bs=1 count=1024 > /etc/munge/munge.key
 
