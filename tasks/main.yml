@@ -47,6 +47,10 @@
     - netcdf-mpich-devel
     - openssl
     - openssl-devel
+    - ophidia-analytics-framework
+    - ophidia-primitives
+    - ophidia-server
+    - ophidia-terminal
     - policycoreutils-python
     - readline
     - readline-devel
@@ -79,10 +83,11 @@
     - '{{ slurm_rpms }}slurm-sql-16.05.2-1.el7.centos.x86_64.rpm'
     - '{{ slurm_rpms }}slurm-torque-16.05.2-1.el7.centos.x86_64.rpm'
     - '{{ slurm_rpms }}libmatheval-1.1.11-5.el7.centos.x86_64.rpm'
-    - '{{ oph_rpms }}ophidia-analytics-framework-0.10.2-0.el7.centos.x86_64.rpm'
-    - '{{ oph_rpms }}ophidia-primitives-0.10.2-0.el7.centos.x86_64.rpm'
-    - '{{ oph_rpms }}ophidia-server-0.10.2-0.el7.centos.x86_64.rpm'
-    - '{{ oph_rpms }}ophidia-terminal-0.10.2-0.el7.centos.x86_64.rpm'
+
+#    - '{{ oph_rpms }}ophidia-analytics-framework-0.10.2-0.el7.centos.x86_64.rpm'
+#    - '{{ oph_rpms }}ophidia-primitives-0.10.2-0.el7.centos.x86_64.rpm'
+#    - '{{ oph_rpms }}ophidia-server-0.10.2-0.el7.centos.x86_64.rpm'
+#    - '{{ oph_rpms }}ophidia-terminal-0.10.2-0.el7.centos.x86_64.rpm'
 
 - name: Create user for Ophidia framwork
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
