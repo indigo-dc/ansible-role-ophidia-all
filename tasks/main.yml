@@ -155,6 +155,9 @@
     owner=root
     group=root
 
+- name: ownership of /etc/munge
+  file: path=/etc/munge owner=munge group=root
+
 - name: Make munge private key
   shell: dd if=/dev/urandom bs=1 count=1024 > /etc/munge/munge.key
   become: true
