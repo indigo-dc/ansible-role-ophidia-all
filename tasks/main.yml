@@ -42,6 +42,7 @@
     - mpich
     - mpich-devel
     - mysql-community-devel
+    - MySQL-python
     - netcdf-mpich.x86_64
     - netcdf-mpich-devel
     - openssl
@@ -119,6 +120,9 @@
     mode=0600
     owner=root
     group=root
+
+- name: Start mysql service
+  service: name=mysql state=started enabled=yes
 
 - name: set the mysql root user passwd
   mysql_user: name=root password={{ cert_passwd }}
