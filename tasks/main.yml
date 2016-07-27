@@ -15,13 +15,14 @@
 - name: Install necessary packages
   yum: name={{ item }} state=latest update_cache=yes
   with_items:
-    - git
-    - gcc-c++
-    - curl
-    - flex-devel
     - compat-guile18
     - compat-guile18-devel
-    - guile-devel
+    - curl
+    - dejavu-fonts-common
+    - dejavu-sans-mono-fonts
+    - flex-devel
+    - gcc-c++
+    - git
     - graphviz-devel
     - gsoap
     - gsoap-devel
@@ -29,6 +30,7 @@
     - gsl
     - gtk2
     - gtk2-devel
+    - guile-devel
     - hdf5-mpich
     - hdf5-mpich-devel
     - jansson
@@ -40,6 +42,7 @@
     - libxml2
     - libxml2-devel
     - mpich
+    - mpich-autoload
     - mpich-devel
     - mysql-community-devel
     - MySQL-python
@@ -50,6 +53,7 @@
     - policycoreutils-python
     - readline
     - readline-devel
+    - rrdtool
     - sudo
     - wget
     - indent
@@ -61,15 +65,6 @@
     - munge
     - munge-devel
     - munge-libs
-
-- name: 3rd set of packages ophidia and libmatheval - the ones from the indigo repos
-  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=no
-  with_items:
-    - libmatheval
-    - ophidia-analytics-framework
-    - ophidia-primitives
-    - ophidia-server
-    - ophidia-terminal
 
 - name: 2nd set of packages slurm - the ones from the indigo repos
   yum: name={{ item }} state=latest update_cache=yes
@@ -88,6 +83,14 @@
     - slurm-sql
     - slurm-torque
 
+- name: 3rd set of packages ophidia and libmatheval - the ones from the indigo repos
+  yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=no
+  with_items:
+    - libmatheval
+    - ophidia-analytics-framework
+    - ophidia-primitives
+    - ophidia-server
+    - ophidia-terminal
 
 #- name: install slurm and ophidia rpms (TEMPORARY from non repo url)
 #  yum: name={{ item }} state=present validate_certs=no
