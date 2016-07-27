@@ -139,22 +139,6 @@
     owner=root
     group=root
 
-- name: Copy template of .my.cnf to ophi_user
-  template:
-    src=.my.cnf.j2
-    dest=/home/{{ oph_user }}/.my.cnf
-    mode=0600
-    owner={{ oph_user }}
-    group={{ oph_user }}
-
-- name: Copy template of .my.cnf to root
-  template:
-    src=.my.cnf.j2
-    dest=/root/.my.cnf
-    mode=0600
-    owner=root
-    group=root
-
 - name: ownership of /etc/munge
   file: path=/etc/munge owner=munge group=root
 
@@ -275,6 +259,22 @@
 
 - name: set the mysql root user passwd
   mysql_user: name=root password={{ cert_passwd }}
+
+- name: Copy template of .my.cnf to ophi_user
+  template:
+    src=.my.cnf.j2
+    dest=/home/{{ oph_user }}/.my.cnf
+    mode=0600
+    owner={{ oph_user }}
+    group={{ oph_user }}
+
+- name: Copy template of .my.cnf to root
+  template:
+    src=.my.cnf.j2
+    dest=/root/.my.cnf
+    mode=0600
+    owner=root
+    group=root
 
 - name: create ophidia databases
   mysql_db: name={{ item }} state=present
