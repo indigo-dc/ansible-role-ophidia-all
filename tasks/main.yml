@@ -86,13 +86,15 @@
 - name: Create user for Ophidia framwork
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
 
-- name: Unarchive
-  unarchive: src={{ item }} dest=/usr/local owner=root group=root copy=no
-  with_items:
-    - http://ftp.gnu.org/gnu/libmatheval/libmatheval-1.1.11.tar.gz
-    - http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.17.tar.gz
-    - ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz
-    - http://www.lip.pt/~david/gsoap_2.8.27.tgz
+# Comment the get and unarchive of these tarballs since we now install rpms
+# keep this task until proven that the rpms are doing their work on ophidia
+#- name: Unarchive
+#  unarchive: src={{ item }} dest=/usr/local owner=root group=root copy=no
+#  with_items:
+#    - http://ftp.gnu.org/gnu/libmatheval/libmatheval-1.1.11.tar.gz
+#    - http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.17.tar.gz
+#    - ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz
+#    - http://www.lip.pt/~david/gsoap_2.8.27.tgz
 
 - name: Copy template of ophidia server server.conf
   template:
@@ -101,6 +103,34 @@
     mode=0644
     owner=root
     group=root
+
+- name: Copy template of .my.cfn to ophi_user
+  template:
+    src=.my.cfn.j2
+    dest=/home/{{ oph_user }}/.my.cfn
+    mode=0600
+    owner={{ oph_user }}
+    group={{ oph_user }}
+
+- name: Copy template of .my.cfn to root
+  template:
+    src=.my.cfn.j2
+    dest=/root/.my.cfn
+    mode=0600
+    owner=root
+    group=root
+
+- name: set the mysql root user passwd
+  mysql_user: name=root password={{ cert_passwd }}
+
+- name: Make munge private key
+  shell: dd if=/dev/urandom bs=1 count=1024 > /etc/munge/munge.key
+
+- name: Change ownership of /etc/munge/munge.key
+  command: sudo chown munge:munge /etc/munge/munge.key
+
+- name: Set permissions on /etc/munge/munge.key
+  command: chmod 400 /etc/munge/munge.key
 
 - name: Creating root SSL cert
   command: >
