@@ -268,6 +268,9 @@
 - name: start slurmctld
   command: /usr/sbin/slurmctld
 
+- name: start httpd
+  command: /usr/sbin/httpd
+
 ####
 
 - name: set the mysql root user passwd
@@ -281,4 +284,20 @@
 
 - name: import ophidia analytics db
   mysql_db: name=ophidiadb state=import target=/usr/local/ophidia/oph-cluster/oph-analytics-framework/etc/ophidiadb.sql
+
+- name: Copy template of .my.cnf to root
+  template:
+    src=ophdb-host.sql.j2
+    dest=/tmp/ophdb-host.sql
+    mode=0600
+    owner=root
+    group=root
+
+- name: import ophdb-host.sql
+  mysql_db: name=ophidiadb state=import target=/tmp/ophdb-host.sql
+
+- name: Start ophidia server
+  shell: /usr/local/ophidia/oph-server/bin/oph_server -d 2>&1 > /dev/null &
+  args:
+    executable: /bin/bash
 
