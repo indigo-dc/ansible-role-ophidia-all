@@ -241,6 +241,10 @@
   args:
     executable: /bin/bash
 
+# this task is temporary: set explicitely the mysql root passwd
+- name: Set mysql root passwd
+  command: /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'
+
 - name: start munged
   command: /usr/sbin/munged
   become: true
@@ -257,8 +261,10 @@
 
 ####
 
-- name: set the mysql root user passwd
-  mysql_user: name=root password={{ cert_passwd }}
+# This task is the correct way to set the mysql roo passwd but not working properly
+# will have to check the problem
+#- name: set the mysql root user passwd
+#  mysql_user: name=root password={{ cert_passwd }}
 
 - name: Copy template of .my.cnf to ophi_user
   template:
