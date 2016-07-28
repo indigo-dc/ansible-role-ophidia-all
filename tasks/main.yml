@@ -144,11 +144,9 @@
 
 - name: Make munge private key
   shell: dd if=/dev/urandom bs=1 count=1024 > /etc/munge/munge.key
-  become: true
-  become_user: munge
 
 - name: Set permissions on /etc/munge/munge.key
-  file: path=/etc/munge/munge.key mode=400
+  file: path=/etc/munge/munge.key mode=400 owner=munge group=root
 
 - name: Creating root SSL cert
   command: >
@@ -229,12 +227,12 @@
 # TODO: for now the service will have to be started manually
 # will have to figure out the problems of centos7 systemd
 - name: ownership mysql for /var/log/mysqld.log
-  file: path=/var/log/mysqld.log owner=mysql group=mysql
+  file: path=/var/log/mysqld.log owner=mysql group=root
 
 - name: mysql prepare system tables
   command: /usr/bin/mysql-systemd-start pre
-  become: true
-  become_user: mysql
+#  become: true
+#  become_user: mysql
 
 - name: Start mysql_safe
   shell: /usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &
@@ -243,8 +241,8 @@
 
 - name: start munged
   command: /usr/sbin/munged
-  become: true
-  become_user: munge
+#  become: true
+#  become_user: munge
 
 - name: start slurmd
   command: /usr/sbin/slurmd
