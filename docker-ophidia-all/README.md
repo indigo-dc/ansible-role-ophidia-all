@@ -1,5 +1,5 @@
-docker-ophidia-terminal
-=======================
+docker-ophidia-all
+==================
 
 Dockerfile to run the ophidia big data framework
 
