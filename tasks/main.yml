@@ -1,4 +1,6 @@
 ---
+#################################################
+# Tasks to install additional repos
 - name: Install epel-elease
   yum: name=epel-release state=latest update_cache=yes
 
@@ -12,59 +14,48 @@
     - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing-third-party.repo', dest: '/etc/yum.repos.d/indigo1-testing-third-party.repo' }
     - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing-updates.repo', dest: '/etc/yum.repos.d/indigo1-testing-updates.repo' }
 
+#################################################
+# Tasks to install packages
 - name: Install necessary packages
   yum: name={{ item }} state=latest update_cache=yes
   with_items:
     - compat-guile18
-    - compat-guile18-devel
     - curl
     - dejavu-fonts-common
     - dejavu-sans-mono-fonts
-    - flex-devel
+    - flex
     - gcc-c++
     - git
-    - graphviz-devel
+    - graphviz
     - gsoap
-    - gsoap-devel
-    - gsl-devel
     - gsl
     - gtk2
-    - gtk2-devel
-    - guile-devel
+    - guile
     - hdf5-mpich
-    - hdf5-mpich-devel
+    - httpd
+    - indent
     - jansson
-    - jansson-devel
-    - libcurl-devel
-    - libssh2-devel
+    - lcov
+    - libcurl
+    - libssh2
     - libtool-ltdl
-    - libtool-ltdl-devel
     - libxml2
-    - libxml2-devel
     - mpich
     - mpich-autoload
-    - mpich-devel
-    - mysql-community-devel
+    - mysql-community
+    - mysql-community-server
     - MySQL-python
+    - munge
+    - munge-libs
     - netcdf-mpich
-    - netcdf-mpich-devel
     - openssl
-    - openssl-devel
+    - php
     - policycoreutils-python
+    - python-pip
     - readline
-    - readline-devel
     - rrdtool
     - sudo
     - wget
-    - indent
-    - lcov
-    - python-pip
-    - httpd
-    - php
-    - mysql-community-server
-    - munge
-    - munge-devel
-    - munge-libs
 
 - name: 2nd set of packages slurm ophidia and libmatheval - the ones from the indigo repos
   yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=yes
@@ -88,43 +79,16 @@
     - slurm-sql
     - slurm-torque
 
-#- name: install slurm and ophidia rpms (TEMPORARY from non repo url)
-#  yum: name={{ item }} state=present validate_certs=no
-#  with_items:
-#    - '{{ slurm_rpms }}slurm-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-munge-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-openlava-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-pam_slurm-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-perlapi-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-plugins-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-seff-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-sjobexit-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-sjstat-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-slurmdb-direct-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-slurmdbd-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-sql-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}slurm-torque-16.05.2-1.el7.centos.x86_64.rpm'
-#    - '{{ slurm_rpms }}libmatheval-1.1.11-5.el7.centos.x86_64.rpm'
-#    - '{{ oph_rpms }}ophidia-analytics-framework-0.10.2-0.el7.centos.x86_64.rpm'
-#    - '{{ oph_rpms }}ophidia-primitives-0.10.2-0.el7.centos.x86_64.rpm'
-#    - '{{ oph_rpms }}ophidia-server-0.10.2-0.el7.centos.x86_64.rpm'
-#    - '{{ oph_rpms }}ophidia-terminal-0.10.2-0.el7.centos.x86_64.rpm'
+#################################################
+# Tasks for configuration
+- name: Copy oph-primitives/lib to /usr/lib64/mysql/plugin
+  command: cp -pr /usr/local/ophidia/oph-cluster/oph-primitives/lib/liboph_*.so /usr/lib64/mysql/plugin/
 
 - name: Create user for Ophidia framwork
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
 
 - name: sudo does not require tty
   shell: sed -i 's/requiretty/!requiretty/g' /etc/sudoers
-
-# Comment the get and unarchive of these tarballs since we now install rpms
-# keep this task until proven that the rpms are doing their work on ophidia
-#- name: Unarchive
-#  unarchive: src={{ item }} dest=/usr/local owner=root group=root copy=no
-#  with_items:
-#    - http://ftp.gnu.org/gnu/libmatheval/libmatheval-1.1.11.tar.gz
-#    - http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.17.tar.gz
-#    - ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz
-#    - http://www.lip.pt/~david/gsoap_2.8.27.tgz
 
 - name: Copy template of ophidia server server.conf
   template:
@@ -226,7 +190,9 @@
     - /usr/local/ophidia/oph-server/etc/cert/serverreq.pem
     - /usr/local/ophidia/oph-server/etc/cert/cacert.srl
 
-#####
+#######################################################
+# Tasks to setup/config mysql and necessary databases
+
 # TODO: for now the service will have to be started manually
 # will have to figure out the problems of centos7 systemd
 - name: ownership mysql for /var/log/mysqld.log
@@ -242,24 +208,11 @@
   args:
     executable: /bin/bash
 
-- name: start munged
-  command: /usr/sbin/munged
-  become: true
-  become_user: munge
-
-- name: start slurmd
-  command: /usr/sbin/slurmd
-
-- name: start slurmctld
-  command: /usr/sbin/slurmctld
-
-- name: start httpd
-  command: /usr/sbin/httpd
 
 ####
-
 # This task is the correct way to set the mysql roo passwd but not working properly
 # will have to check the problem
+#
 #- name: set the mysql root user passwd
 #  mysql_user: name=root password={{ cert_passwd }}
 
@@ -302,6 +255,23 @@
 
 - name: import ophdb-host.sql
   mysql_db: name=ophidiadb state=import target=/tmp/ophdb-host.sql
+
+#######################################################
+# Tasks to start the services
+
+- name: start munged
+  command: /usr/sbin/munged
+  become: true
+  become_user: munge
+
+- name: start slurmd
+  command: /usr/sbin/slurmd
+
+- name: start slurmctld
+  command: /usr/sbin/slurmctld
+
+- name: start httpd
+  command: /usr/sbin/httpd
 
 - name: Start ophidia server
   shell: /usr/local/ophidia/oph-server/bin/oph_server -d 2>&1 > /dev/null &

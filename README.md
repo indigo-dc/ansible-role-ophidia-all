@@ -1,38 +1,92 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+The ansible role deploys and configures all services for the Ophidia Big
+Data Framework
+
+Introduction
+------------
+
+The repository contains ansible-roles that are published in
+ansible galaxy: https://galaxy.ansible.com/indigo-dc/ophidia-all/
+
+The directories docker-ophidia-all are linked to
+dockerhub with automatic build of image.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+No aditional requirements
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Default role varibles are:
+
+1. oph_user: user that will run the framework
+2. cert_passwd: the password for the certificates, user account and mysql
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+An example of playbook to deploy ambertools:
+
+```
+---
+- hosts: localhost
+  roles:
+    - { role: indigo-dc.ophidia-all }
+```
+
+Or execute:
+
+```
+$ ansible-playbook /etc/ansible/roles/indigo-dc.ophidia-all/tests/test.yml
+```
+
+Ophidia terminal test session
+-----------------------------
+
+The following commands define a complete test session that can be run through the Ophidia terminal
+
+```
+/usr/local/ophidia/oph-terminal/bin/oph_term -H 127.0.0.1 -u oph-test -p abcd -P 11732
+oph_term> oph_list level=2;
+oph_term> oph_man function=oph_list;
+oph_term> oph_createcontainer container=test;dim=lat|lon|time;hierarchy=oph_base|oph_base|oph_time;dim_type=double|double|double;
+oph_term> oph_randcube container=test;dim=lat|lon|time;dim_size=10|10|10;measure=test;measure_type=double;nfrag=10;ntuple=10;concept_level=c|c|d;exp_ndim=2;compressed=no; 
+oph_term> oph_cubeschema
+oph_term> oph_reduce operation=max;
+oph_term> oph_aggregate operation=max;
+oph_term> oph_explorecube
+oph_term> oph_delete cube=[container=test];
+oph_term> quit
+```
+
+Further documentation
+---------------------
+
+* Ophidia: http://ophidia.cmcc.it/documentation/
+* Installation and configuration: http://ophidia.cmcc.it/documentation/admin/index.html
 
 License
 -------
 
-BSD
+Apache v2
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Mario David: mariojmdavid@gmail.com
+LIP and Indigo-DataCloud project
+
+Acknowledgments
+---------------
+
+* Ophidia CMCC group
