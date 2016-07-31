@@ -262,6 +262,9 @@
 - name: import ophdb-host.sql
   mysql_db: name=ophidiadb state=import target=/tmp/ophdb-host.sql
 
+- name: import primitives
+  mysql_db: name=mysql state=import target=/usr/local/ophidia/oph-cluster/oph-primitives/etc/create_func.sql
+
 #######################################################
 # Tasks to start the services
 - name: start munged
