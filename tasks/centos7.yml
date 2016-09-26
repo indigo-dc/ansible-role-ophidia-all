@@ -270,6 +270,11 @@
   become: true
   become_user: munge
 
+- name: RedHat | Wait for munge start
+  shell: sleep 10
+  args:
+    executable: /bin/bash
+
 - name: RedHat | start slurmd
   command: /usr/sbin/slurmd
 

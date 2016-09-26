@@ -290,6 +290,11 @@
   become: true
   become_user: munge
 
+- name: RedHat | Wait for mysql start
+  shell: sleep 10
+  args:
+    executable: /bin/bash
+
 - name: Debian | start slurmd
   command: /usr/sbin/slurmd
 
