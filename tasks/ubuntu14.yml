@@ -1,9 +1,6 @@
 ---
 #################################################
 # Tasks to install additional repos
-- name: Debian | Install epel-elease
-  apt: name=epel-release state=latest update_cache=yes
-
 - name: Debian | get the indigo repository conf
   get_url: url={{ item.url }} dest={{ item.dest }}
   with_items:
@@ -18,44 +15,35 @@
     - curl
     - libcurl3
     - libcurl4-openssl-dev
-    - dejavu-fonts-common
-    - dejavu-sans-mono-fonts
+    - fonts-dejavu
     - flex
-    - gcc-c++
+    - gcc
     - git
     - graphviz-dev
     - gsoap
     - libgsl0-dev
     - libgtk2.0-dev
-    - guile
-    - hdf5-mpich
     - apache2-bin
     - indent
     - lcov
     - bison
-    - libcurl
+    - libcurl3
     - libssh2-1-dev
-    - libtool-ltdl
+    - libtool
     - libltdl-dev
     - libxml2
     - libxml2-dev
     - mpich
-    - mpich-autoload
     - libmpich2-dev
-    - mysql-community-devel
-    - mysql-community-server
     - libmysqlclient-dev
     - mysql-client-5.6
-    - MySQL-python
     - munge
     - libmunge-dev
     - libmunge2
-    - netcdf-mpich
     - openssl
     - libssl-dev
     - php5
     - libapache2-mod-php5
-    - policycoreutils-python
     - python-pip
     - rrdtool
     - sudo
@@ -64,38 +52,77 @@
     - libreadline-dev
     - autotools-dev
     - autoconf
+    - slurm-llnl
 
 - name: Debian | Install MySQL Server
   shell: DEBIAN_FRONTEND="noninteractive" apt-get install -y mysql-server-5.6
   args:
     executable: /bin/bash
 
-- name: Debian | 2nd set of packages slurm ophidia and libmatheval - the ones from the indigo repos
-  apt: name={{ item }} state=latest update_cache=yes disable_gpg_check=yes
-  with_items:
-    - libmatheval
-    - ophidia-analytics-framework
-    - ophidia-primitives
-    - ophidia-server
-    - ophidia-terminal
-    - slurm
-    - slurm-munge
-    - slurm-openlava
-    - slurm-pam_slurm
-    - slurm-perlapi
-    - slurm-plugins
-    - slurm-seff
-    - slurm-sjobexit
-    - slurm-sjstat
-    - slurm-slurmdb-direct
-    - slurm-slurmdbd
-    - slurm-sql
-    - slurm-torque
-
 - name: Debian | Install gcovr
   shell: pip install gcovr
   args:
     executable: /bin/bash
+
+#################################################
+# Tasks to install additional packages
+- name: Debian | Create source directory
+  file: path=/usr/local/ophidia/extra/src state=directory mode=0755
+
+- name: Debian | Download Matheval
+  get_url:
+    url: http://ftp.gnu.org/gnu/libmatheval/libmatheval-1.1.11.tar.gz
+    dest: /usr/local/ophidia/extra/src
+    force_basic_auth: yes
+
+- name: Debian | Extract MathEval
+  unarchive: src=/usr/local/ophidia/extra/src/libmatheval-1.1.11.tar.gz dest=/usr/local/ophidia/extra/src
+
+- name: Debian | Install MathEval
+  shell:
+    cd /usr/local/ophidia/extra/src/libmatheval-1.1.11 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel && make && make install
+  args:
+    executable: /bin/bash
+
+- name: Debian | Download HDF5
+  get_url:
+    url: http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.8.17.tar.gz
+    dest: /usr/local/ophidia/extra/src
+    force_basic_auth: yes
+
+- name: Debian | Extract HDF5
+  unarchive: src=/usr/local/ophidia/extra/src/hdf5-1.8.17.tar.gz dest=/usr/local/ophidia/extra/src
+
+- name: Debian | Install HDF5
+  shell:
+    cd /usr/local/ophidia/extra/src/hdf5-1.8.17 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel && make && make install
+  args:
+    executable: /bin/bash
+
+- name: Debian | Download NetCDF
+  get_url:
+    url: ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz
+    dest: /usr/local/ophidia/extra/src
+    force_basic_auth: yes
+
+- name: Debian | Extract NetCDF
+  unarchive: src=/usr/local/ophidia/extra/src/netcdf-4.4.0.tar.gz dest=/usr/local/ophidia/extra/src
+
+- name: Debian | Install NetCDF
+  shell:
+    cd /usr/local/ophidia/extra/src/netcdf-4.4.0 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel-tests && make && make install
+  args:
+    executable: /bin/bash
+
+#################################################
+# Tasks to install Ophidia modules
+- name: Debian | Ophidia packages - from the indigo repos
+  apt: name={{ item }} state=latest update_cache=yes
+  with_items:
+    - ophidia-analytics-framework
+    - ophidia-primitives
+    - ophidia-server
+    - ophidia-terminal
 
 #################################################
 # Tasks for configuration
@@ -289,11 +316,6 @@
   command: /usr/sbin/munged
   become: true
   become_user: munge
-
-- name: RedHat | Wait for mysql start
-  shell: sleep 10
-  args:
-    executable: /bin/bash
 
 - name: Debian | start slurmd
   command: /usr/sbin/slurmd
