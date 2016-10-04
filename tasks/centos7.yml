@@ -54,6 +54,7 @@
     - rrdtool
     - sudo
     - wget
+    - bzip2
 
 - name: RedHat | 2nd set of packages slurm ophidia and libmatheval - the ones from the indigo repos
   yum: name={{ item }} state=latest update_cache=yes disable_gpg_check=yes
@@ -88,7 +89,11 @@
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
 
 - name: RedHat | sudo does not require tty
-  shell: sed -i 's/requiretty/!requiretty/g' /etc/sudoers
+  lineinfile:
+    dest=/etc/sudoers
+    state=present
+    regexp=^requiretty
+    line='Defaults    !requiretty'
 
 - name: RedHat | Copy template of ophidia server server.conf
   template:
@@ -125,7 +130,7 @@
       -keyout rootkey.pem
       -out rootreq.pem
   args:
-    chdir: /usr/local/ophidia/oph-server/etc/cert/
+    chdir: /usr/local/ophidia/oph-server/etc/cert
 
 - name: RedHat | Sign root SSL cert
   command: >
@@ -138,12 +143,12 @@
       -signkey rootkey.pem
       -out rootcert.pem
   args:
-    chdir: /usr/local/ophidia/oph-server/etc/cert/
+    chdir: /usr/local/ophidia/oph-server/etc/cert
 
 - name: RedHat | merge cert and key of root cert
   shell: cat rootcert.pem rootkey.pem > cacert.pem
   args:
-    chdir: /usr/local/ophidia/oph-server/etc/cert/
+    chdir: /usr/local/ophidia/oph-server/etc/cert
     executable: /bin/bash
 
 - name: RedHat | Creating server SSL cert
@@ -156,7 +161,7 @@
       -keyout serverkey.pem
       -out serverreq.pem
   args:
-    chdir: /usr/local/ophidia/oph-server/etc/cert/
+    chdir: /usr/local/ophidia/oph-server/etc/cert
 
 - name: RedHat | Sign server SSL cert
   command: >
@@ -171,12 +176,12 @@
       -CAcreateserial
       -out servercert.pem
   args:
-    chdir: /usr/local/ophidia/oph-server/etc/cert/
+    chdir: /usr/local/ophidia/oph-server/etc/cert
 
 - name: RedHat | merge cert and key of server cert
   shell: cat servercert.pem serverkey.pem rootcert.pem > myserver.pem
   args:
-    chdir: /usr/local/ophidia/oph-server/etc/cert/
+    chdir: /usr/local/ophidia/oph-server/etc/cert
     executable: /bin/bash
 
 - name: RedHat | Remove intermediate certs
@@ -310,21 +315,103 @@
 #######################################################
 # Tasks to set permissions
 - name: RedHat | Set permissions on Ophidia folders
-  shell: chown -R {{ oph_user }}:{{ oph_user }} /usr/local/ophidia
-  args:
-    executable: /bin/bash
+  file: path=/usr/local/ophidia owner={{ oph_user }} group={{ oph_user }} state=directory recurse=yes
 
 - name: RedHat | Set permissions on Ophidia web space
-  shell: chown -R {{ oph_user }}:{{ oph_user }} /var/www/html/ophidia
-  args:
-    executable: /bin/bash
+  file: path=/var/www/html/ophidia owner={{ oph_user }} group={{ oph_user }} state=directory recurse=yes
 
 #######################################################
 # Task to start Ophidia service
 - name: RedHat | Start ophidia server
-  shell: oph_server -d 2>&1 > /dev/null &
+  shell: oph_server 2>&1 > /dev/null &
   args:
     executable: /bin/bash
   become: yes
   become_user: "{{ oph_user }}"
+
+#######################################################
+# Tasks to install UV-CDAT
+- name: RedHat | Create extra folder for Python
+  file: path=/usr/local/ophidia/extra/src state=directory mode=0755 owner={{ oph_user }} group={{ oph_user }}
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Download Python
+  get_url:
+    url: https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz
+    dest: /usr/local/ophidia/extra/src
+    force_basic_auth: yes
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Extract Python
+  unarchive: src=/usr/local/ophidia/extra/src/Python-3.5.0.tgz dest=/usr/local/ophidia/extra/src
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Install Python
+  shell:
+    cd /usr/local/ophidia/extra/src/Python-3.5.0 && ./configure --prefix=/usr/local/ophidia/extra > /dev/null 2>&1 && make > /dev/null 2>&1 && make altinstall > /dev/null 2>&1
+  args:
+    executable: /bin/bash
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Download Anaconda
+  get_url:
+    url: http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh
+    dest: /usr/local/ophidia/extra/src
+    force_basic_auth: yes
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Make executable the Anaconda script
+  file: path=/usr/local/ophidia/extra/src/Anaconda3-4.0.0-Linux-x86_64.sh mode=0755 owner={{ oph_user }} group={{ oph_user }}
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Install Anaconda
+  shell:
+    ./Anaconda3-4.0.0-Linux-x86_64.sh -b -p /usr/local/ophidia/extra/anaconda3 > /dev/null 2>&1
+  args:
+    executable: /bin/bash
+    chdir: /usr/local/ophidia/extra/src
+  become: yes
+  become_user: "{{ oph_user }}"
+  environment:
+    PATH: "/usr/local/ophidia/extra/bin:{{ ansible_env.PATH }}"
+
+- name: RedHat | Create ophidia-nox
+  shell:
+    conda create -y -n ophidia-nox -c uvcdat/label/nightly -c uvcdat uvcdat-nox
+  args:
+    executable: /bin/bash
+  become: yes
+  become_user: "{{ oph_user }}"
+  environment:
+    PATH: "/usr/local/ophidia/extra/anaconda3/bin:{{ ansible_env.PATH }}"
+
+- name: RedHat | Update PATH
+  lineinfile:
+    dest=/home/{{ oph_user }}/.bashrc
+    regexp=''
+    insertafter=EOF
+    line='export PATH=/usr/local/ophidia/extra/anaconda3/bin:/usr/local/ophidia/extra/bin:$PATH'
+  become: yes
+  become_user: "{{ oph_user }}"
+
+#######################################################
+# Tasks to configure the workflows
+- name: RedHat | Download the workflows
+  git: repo=https://github.com/OphidiaBigData/ophidia-workflow-catalogue.git dest=/home/{{ oph_user }}/ophidia-workflow-catalogue
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Copy template of ophidia script oph_script_configuration
+  template:
+    src=oph_script_configuration.j2
+    dest=/usr/local/ophidia/oph-cluster/oph-analytics-framework/etc/oph_script_configuration
+    mode=0644
+    owner={{ oph_user }}
+    group={{ oph_user }}
 
