@@ -35,10 +35,9 @@ Example Playbook
 ----------------
 
 
-An example of playbook to deploy ambertools:
+An example of playbook to deploy Ophidia:
 
-```
----
+```yaml
 - hosts: localhost
   roles:
     - { role: indigo-dc.ophidia-all }
