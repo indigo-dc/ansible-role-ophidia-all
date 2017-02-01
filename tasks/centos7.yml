@@ -310,14 +310,20 @@
 #######################################################
 # Tasks to set permissions
 - name: RedHat | Set permissions on Ophidia folders
-  shell: chown -R {{ oph_user }}:{{ oph_user }} /usr/local/ophidia
-  args:
-    executable: /bin/bash
+  file: path=/usr/local/ophidia state=directory owner={{ oph_user }} group={{ oph_user }}
+  become: yes
+  become_user: "{{ oph_user }}"
+#  shell: chown -R {{ oph_user }}:{{ oph_user }} /usr/local/ophidia
+#  args:
+#    executable: /bin/bash
 
 - name: RedHat | Set permissions on Ophidia web space
-  shell: chown -R {{ oph_user }}:{{ oph_user }} /var/www/html/ophidia
-  args:
-    executable: /bin/bash
+  file: path=/var/www/html/ophidia state=directory owner={{ oph_user }} group={{ oph_user }}
+  become: yes
+  become_user: "{{ oph_user }}"
+#  shell: chown -R {{ oph_user }}:{{ oph_user }} /var/www/html/ophidia
+#  args:
+#    executable: /bin/bash
 
 #######################################################
 # Task to start Ophidia service
