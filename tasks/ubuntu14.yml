@@ -369,9 +369,25 @@
 #######################################################
 # Task to start Ophidia service
 - name: Debian | Start ophidia server
-  shell: oph_server -d 2>&1 > /dev/null &
+  shell: oph_server 2>&1 > /dev/null < /dev/null &
   args:
     executable: /bin/bash
   become: yes
   become_user: "{{ oph_user }}"
+
+#######################################################
+# Task to configure Ophidia terminal
+- name: Debian | Configure ophidia terminal
+  lineinfile:
+    dest=/home/{{ oph_user }}/.bashrc
+    line='export {{ item }}'
+    insertafter='EOF'
+    state=present
+  become: yes
+  become_user: "{{ oph_user }}"
+  with_items:
+    - OPH_USER={{ oph_term_user }}
+    - OPH_PASSWD={{ oph_term_passwd }}
+    - OPH_SERVER_HOST={{ oph_term_host }}
+    - OPH_SERVER_PORT={{ oph_term_port }}
 
