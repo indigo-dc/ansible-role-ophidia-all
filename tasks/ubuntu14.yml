@@ -101,7 +101,7 @@
 
 - name: Debian | Download NetCDF
   get_url:
-    url: http://www.lip.pt/~david/netcdf-4.4.1.tar.gz
+    url: http://repo.indigo-datacloud.eu/repository/indigo/1/ubuntu/dists/trusty-updates/third-party/source/netcdf-4.4.1.tar.gz
     dest: /usr/local/ophidia/extra/src
     force_basic_auth: yes
 
