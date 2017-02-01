@@ -101,16 +101,16 @@
 
 - name: Debian | Download NetCDF
   get_url:
-    url: ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.0.tar.gz
+    url: http://www.lip.pt/~david/netcdf-4.4.1.tar.gz
     dest: /usr/local/ophidia/extra/src
     force_basic_auth: yes
 
 - name: Debian | Extract NetCDF
-  unarchive: src=/usr/local/ophidia/extra/src/netcdf-4.4.0.tar.gz dest=/usr/local/ophidia/extra/src
+  unarchive: src=/usr/local/ophidia/extra/src/netcdf-4.4.1.tar.gz dest=/usr/local/ophidia/extra/src
 
 - name: Debian | Install NetCDF
   shell:
-    cd /usr/local/ophidia/extra/src/netcdf-4.4.0 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel-tests && make && make install
+    cd /usr/local/ophidia/extra/src/netcdf-4.4.1 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel-tests && make && make install
   args:
     executable: /bin/bash
 
