@@ -44,6 +44,7 @@
     - libssl-dev
     - php5
     - libapache2-mod-php5
+    - python-dev
     - python-pip
     - rrdtool
     - sudo
