@@ -60,9 +60,10 @@
     executable: /bin/bash
 
 - name: Debian | Install gcovr
-  shell: pip install gcovr
-  args:
-    executable: /bin/bash
+  pip: name=gcovr
+
+- name: Debian | Install mysqldb
+  pip: name=MySQL-python
 
 #################################################
 # Tasks to install additional packages
@@ -80,7 +81,7 @@
 
 - name: Debian | Install MathEval
   shell:
-    cd /usr/local/ophidia/extra/src/libmatheval-1.1.11 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel && make && make install
+    cd /usr/local/ophidia/extra/src/libmatheval-1.1.11 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel && make -s > /dev/null && make install -s > /dev/null
   args:
     executable: /bin/bash
 
@@ -89,13 +90,14 @@
     url: https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.17/src/hdf5-1.8.17.tar.gz
     dest: /usr/local/ophidia/extra/src
     force_basic_auth: yes
+    timeout: 1000
 
 - name: Debian | Extract HDF5
   unarchive: src=/usr/local/ophidia/extra/src/hdf5-1.8.17.tar.gz dest=/usr/local/ophidia/extra/src
 
 - name: Debian | Install HDF5
   shell:
-    cd /usr/local/ophidia/extra/src/hdf5-1.8.17 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel && make && make install
+    cd /usr/local/ophidia/extra/src/hdf5-1.8.17 && CC=/usr/bin/mpicc ./configure --prefix=/usr/local/ophidia/extra --enable-parallel && make -s > /dev/null && make install -s > /dev/null
   args:
     executable: /bin/bash
 
@@ -104,20 +106,21 @@
     url: http://repo.indigo-datacloud.eu/repository/indigo/1/ubuntu/dists/trusty-updates/third-party/source/netcdf-4.4.1.tar.gz
     dest: /usr/local/ophidia/extra/src
     force_basic_auth: yes
+    timeout: 1000
 
 - name: Debian | Extract NetCDF
   unarchive: src=/usr/local/ophidia/extra/src/netcdf-4.4.1.tar.gz dest=/usr/local/ophidia/extra/src
 
 - name: Debian | Install NetCDF
   shell:
-    cd /usr/local/ophidia/extra/src/netcdf-4.4.1 && ./configure --prefix=/usr/local/ophidia/extra --enable-parallel-tests && make && make install
+    cd /usr/local/ophidia/extra/src/netcdf-4.4.1 && CC=/usr/bin/mpicc CPPFLAGS="-I/usr/local/ophidia/extra/include" LDFLAGS="-L/usr/local/ophidia/extra/lib" LIBS=-ldl ./configure --prefix=/usr/local/ophidia/extra --enable-parallel-tests && make -s > /dev/null && make install -s > /dev/null
   args:
     executable: /bin/bash
 
 #################################################
 # Tasks to install Ophidia modules
 - name: Debian | Ophidia packages - from the indigo repos
-  apt: name={{ item }} state=latest update_cache=yes
+  apt: name={{ item }} state=latest update_cache=yes allow_unauthenticated=yes
   with_items:
     - ophidia-analytics-framework
     - ophidia-primitives
@@ -126,12 +129,12 @@
 
 #################################################
 # Tasks for configuration
-- name: Debian | Copy oph-primitives/lib to /usr/lib64/mysql/plugin
-  shell: cp /usr/local/ophidia/oph-cluster/oph-primitives/lib/liboph_*.so /usr/lib64/mysql/plugin/
+- name: Debian | Copy oph-primitives/lib to /usr/lib/mysql/plugin
+  shell: cp /usr/local/ophidia/oph-cluster/oph-primitives/lib/liboph_*.so /usr/lib/mysql/plugin/
   args:
     executable: /bin/bash
 
-- name: Debian | Create user for Ophidia framwork
+- name: Debian | Create user for Ophidia framework
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
 
 - name: Debian | sudo does not require tty
@@ -148,7 +151,7 @@
 - name: Debian | Copy template of slurm.conf
   template:
     src=slurm.conf.j2
-    dest=/etc/slurm/slurm.conf
+    dest=/etc/slurm-llnl/slurm.conf
     mode=0644
     owner=root
     group=root
@@ -161,6 +164,9 @@
 
 - name: Debian | Set permissions on /etc/munge/munge.key
   file: path=/etc/munge/munge.key mode=400 owner=munge group=root
+
+- name: Debian | Set permissions on /var/run/munge
+  file: path=/var/run/munge state=directory mode=0755 owner=munge group=munge
 
 - name: Debian | Creating root SSL cert
   command: >
@@ -238,38 +244,16 @@
     - /usr/local/ophidia/oph-server/etc/cert/cacert.srl
 
 #######################################################
+# Task to start MySQL; do not use 'service' since it does not work correctly
+- name: Debian | Start mysql service
+  command: service mysql start
+
+#######################################################
 # Tasks to setup/config mysql and necessary databases
-
-# TODO: for now the service will have to be started manually
-# will have to figure out the problems of centos7 systemd
-- name: Debian | ownership mysql for /var/log/mysqld.log
-  file: path=/var/log/mysqld.log owner=mysql group=root
-
-- name: Debian | mysql prepare system tables
-  command: /usr/bin/mysql-systemd-start pre
-  become: true
-  become_user: mysql
-
-- name: Debian | Start mysql_safe
-  shell: /usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &
-  args:
-    executable: /bin/bash
-
-- name: Debian | Wait for mysql start
-  shell: sleep 10
-  args:
-    executable: /bin/bash
-
-####
-# This task is the correct way to set the mysql roo passwd but not working properly
-# will have to check the problem
-#
-#- name: Debian | set the mysql root user passwd
-#  mysql_user: name=root password={{ cert_passwd }}
-
-# this task is temporary: set explicitely the mysql root passwd
 - name: Debian | Set mysql root passwd
-  command: /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'
+  shell: /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'
+  args:
+    executable: /bin/bash
 
 - name: Debian | Copy template of .my.cnf to oph_user
   template:
@@ -313,21 +297,27 @@
 #######################################################
 # Tasks to start the services
 - name: Debian | start munged
-  command: /usr/sbin/munged
+  command: /usr/sbin/munged --syslog
   become: true
   become_user: munge
 
-- name: Debian | start slurmd
-  command: /usr/sbin/slurmd
-
-- name: Debian | start slurmctld
-  command: /usr/sbin/slurmctld
+- name: Debian | start slurm
+  service:
+    name: slurm-llnl
+    state: started
+    enabled: true
 
 - name: Debian | start httpd
-  command: /usr/sbin/httpd
+  service:
+    name: apache2
+    state: started
+    enabled: true
 
 - name: Debian | start sshd
-  command: /usr/sbin/sshd
+  service:
+    name: ssh
+    state: started
+    enabled: true
 
 #######################################################
 # Tasks to generate DSA keys for oph_user
@@ -353,6 +343,19 @@
 
 - name: Debian | Remove nologin
   file: path=/run/nologin state=absent
+
+- name: Debian | Set known_hosts
+  shell: ssh-keyscan 127.0.0.1 >> known_hosts
+  args:
+    chdir: /home/{{ oph_user }}/.ssh
+    executable: /bin/bash
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: Debian | Set permissions on known_hosts
+  file: path=/home/{{ oph_user }}/.ssh/known_hosts mode=644 owner={{ oph_user }} group={{ oph_user }}
+  become: yes
+  become_user: "{{ oph_user }}"
 
 #######################################################
 # Tasks to set permissions

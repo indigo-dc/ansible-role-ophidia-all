@@ -84,7 +84,7 @@
   args:
     executable: /bin/bash
 
-- name: RedHat | Create user for Ophidia framwork
+- name: RedHat | Create user for Ophidia framework
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
 
 - name: RedHat | sudo does not require tty
@@ -306,6 +306,19 @@
 
 - name: RedHat | Remove nologin
   file: path=/run/nologin state=absent
+
+- name: RedHat | Set known_hosts
+  shell: ssh-keyscan 127.0.0.1 >> known_hosts
+  args:
+    chdir: /home/{{ oph_user }}/.ssh
+    executable: /bin/bash
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Set permissions on known_hosts
+  file: path=/home/{{ oph_user }}/.ssh/known_hosts mode=644 owner={{ oph_user }} group={{ oph_user }}
+  become: yes
+  become_user: "{{ oph_user }}"
 
 #######################################################
 # Tasks to set permissions
