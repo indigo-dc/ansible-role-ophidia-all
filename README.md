@@ -23,8 +23,13 @@ Role Variables
 
 Default role varibles are:
 
-1. oph_user: user that will run the framework
-2. cert_passwd: the password for the certificates, user account and mysql
+1. cert_passwd: the password for the certificates, user account and mysql
+2. oph_user: user that will run the framework
+3. oph_passwd: user password
+4. oph_term_user: Ophidia user to access the service
+5. oph_term_passwd: Ophidia password
+6. oph_term_host: hostname or ip address of the node hosting Ophidia service
+7. oph_term_port: port number of Ophidia service
 
 Dependencies
 ------------

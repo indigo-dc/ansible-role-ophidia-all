@@ -4,7 +4,7 @@
 - name: Debian | get the indigo repository conf
   get_url: url={{ item.url }} dest={{ item.dest }}
   with_items:
-    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing-ubuntu14_04.list', dest: '/etc/apt/sources.list.d/indigo1-testing-ubuntu14_04.list' }
+    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-ubuntu14_04.list', dest: '/etc/apt/sources.list.d/indigo1-ubuntu14_04.list' }
 
 #################################################
 # Tasks to install packages
@@ -135,8 +135,11 @@
   args:
     executable: /bin/bash
 
-- name: Debian | Create user for Ophidia framework
+- name: Debian | Create user for Ophidia
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
+
+- name: Debian | Create passwd for Ophidia user
+  shell: echo {{ oph_user }}:{{ oph_passwd }} | chpasswd
 
 - name: Debian | sudo does not require tty
   shell: sed -i 's/requiretty/!requiretty/g' /etc/sudoers

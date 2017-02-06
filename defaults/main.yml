@@ -1,6 +1,7 @@
 ---
 cert_passwd: 'abcd'
 oph_user: 'ophuser'
+oph_passwd: 'abcd'
 oph_term_user: 'oph-test'
 oph_term_passwd: 'abcd'
 oph_term_host: '127.0.0.1'
