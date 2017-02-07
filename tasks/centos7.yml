@@ -1,7 +1,7 @@
 ---
 #################################################
 # Tasks to install additional repos
-- name: RedHat | Install epel-elease
+- name: RedHat | Install epel-release
   yum: name=epel-release state=latest update_cache=yes
 
 - name: RedHat | Install mysql-community-release
@@ -10,7 +10,8 @@
 - name: RedHat | get the indigo repository conf
   get_url: url={{ item.url }} dest={{ item.dest }}
   with_items:
-    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing.repo', dest: '/etc/yum.repos.d/indigo1-testing.repo' }
+    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1.repo', dest: '/etc/yum.repos.d/indigo1.repo' }
+    - { url: 'http://repo.indigo-datacloud.eu/repository/RPM-GPG-KEY-indigodc', dest: '/etc/pki/rpm-gpg/RPM-GPG-KEY-indigodc' }
 
 #################################################
 # Tasks to install packages
