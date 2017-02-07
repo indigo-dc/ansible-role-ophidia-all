@@ -1,14 +1,12 @@
-Role Name
-=========
+Role for Ophidia Big Data Framework
+===================================
 
-The ansible role deploys and configures all services for the Ophidia Big
-Data Framework
+The ansible role deploys and configures all services for the Ophidia Big Data Framework
 
 Introduction
 ------------
 
-The repository contains ansible-roles that are published in
-ansible galaxy: https://galaxy.ansible.com/indigo-dc/ophidia-all/
+The repository contains ansible-roles that are published in ansible galaxy: https://galaxy.ansible.com/indigo-dc/ophidia-all/
 
 The directories docker-ophidia-all are linked to
 dockerhub with automatic build of image.
