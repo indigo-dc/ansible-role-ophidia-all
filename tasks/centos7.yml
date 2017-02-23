@@ -208,14 +208,12 @@
   become_user: mysql
 
 - name: RedHat | Start mysql_safe
-  shell: /usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &
+  shell: pgrep mysqld_safe || (/usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &)
   args:
     executable: /bin/bash
 
 - name: RedHat | Wait for mysql start
-  shell: sleep 10
-  args:
-    executable: /bin/bash
+  wait_for: path=/var/lib/mysql/mysql.sock
 
 ####
 # This task is the correct way to set the mysql roo passwd but not working properly
