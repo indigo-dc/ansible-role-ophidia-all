@@ -250,7 +250,9 @@
 #######################################################
 # Task to start MySQL; do not use 'service' since it does not work correctly
 - name: Debian | Start mysql service
-  command: pgrep mysqld_safe || service mysql start
+  shell: pgrep mysqld_safe || (service mysql start)
+  args:
+    executable: /bin/bash
 
 #######################################################
 # Tasks to setup/config mysql and necessary databases
