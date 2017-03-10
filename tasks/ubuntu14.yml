@@ -249,17 +249,26 @@
 
 #######################################################
 # Task to start MySQL; do not use 'service' since it does not work correctly
+- name: Debian | Remove MySQL flag
+  file: path=/root/started state=absent
+
 - name: Debian | Start mysql service
-  shell: pgrep mysqld_safe || (service mysql start)
+  shell: pgrep mysqld_safe || (service mysql start) && (touch /root/started)
   args:
     executable: /bin/bash
 
 #######################################################
 # Tasks to setup/config mysql and necessary databases
 - name: Debian | Set mysql root passwd
-  shell: /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'
+  shell: if [ -e /root/started ]; then /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'; fi
   args:
     executable: /bin/bash
+
+- name: Debian | Remove MySQL configuration
+  file: path=/root/started state=absent
+
+- name: Debian | Remove MySQL configuration
+  file: path=/home/{{ oph_user }}/.my.cnf state=absent
 
 - name: Debian | Copy template of .my.cnf to oph_user
   template:
@@ -268,6 +277,9 @@
     mode=0600
     owner={{ oph_user }}
     group={{ oph_user }}
+
+- name: Debian | Remove MySQL flag
+  file: path=/root/.my.cnf state=absent
 
 - name: Debian | Copy template of .my.cnf to root
   template:
@@ -286,7 +298,7 @@
 - name: Debian | import ophidia analytics db
   mysql_db: name=ophidiadb state=import target=/usr/local/ophidia/oph-cluster/oph-analytics-framework/etc/ophidiadb.sql
 
-- name: Debian | Copy template of .my.cnf to root
+- name: Debian | Copy template of ophdb-host to root
   template:
     src=ophdb-host.sql.j2
     dest=/tmp/ophdb-host.sql

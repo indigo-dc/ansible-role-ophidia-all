@@ -207,24 +207,27 @@
   become: true
   become_user: mysql
 
+- name: RedHat | Remove MySQL flag
+  file: path=/root/started state=absent
+
 - name: RedHat | Start mysql_safe
-  shell: pgrep mysqld_safe || (/usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &)
+  shell: pgrep mysqld_safe || (/usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &) && (touch /root/started)
   args:
     executable: /bin/bash
 
 - name: RedHat | Wait for mysql start
   wait_for: path=/var/lib/mysql/mysql.sock
 
-####
-# This task is the correct way to set the mysql roo passwd but not working properly
-# will have to check the problem
-#
-#- name: RedHat | set the mysql root user passwd
-#  mysql_user: name=root password={{ cert_passwd }}
-
-# this task is temporary: set explicitely the mysql root passwd
 - name: RedHat | Set mysql root passwd
-  command: /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'
+  shell: if [ -e /root/started ]; then /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'; fi
+  args:
+    executable: /bin/bash
+
+- name: RedHat | Remove MySQL flag
+  file: path=/root/started state=absent
+
+- name: RedHat | Remove MySQL configuration
+  file: path=/home/{{ oph_user }}/.my.cnf state=absent
 
 - name: RedHat | Copy template of .my.cnf to oph_user
   template:
@@ -233,6 +236,9 @@
     mode=0600
     owner={{ oph_user }}
     group={{ oph_user }}
+
+- name: RedHat | Remove MySQL configuration
+  file: path=/root/.my.cnf state=absent
 
 - name: RedHat | Copy template of .my.cnf to root
   template:
@@ -251,7 +257,7 @@
 - name: RedHat | import ophidia analytics db
   mysql_db: name=ophidiadb state=import target=/usr/local/ophidia/oph-cluster/oph-analytics-framework/etc/ophidiadb.sql
 
-- name: RedHat | Copy template of .my.cnf to root
+- name: RedHat | Copy template of ophdb-host to root
   template:
     src=ophdb-host.sql.j2
     dest=/tmp/ophdb-host.sql
