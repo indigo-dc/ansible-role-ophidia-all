@@ -1,7 +1,7 @@
 ---
 #################################################
 # Tasks to install additional repos
-- name: RedHat | Install epel-elease
+- name: RedHat | Install epel-release
   yum: name=epel-release state=latest update_cache=yes
 
 - name: RedHat | Install mysql-community-release
@@ -10,7 +10,8 @@
 - name: RedHat | get the indigo repository conf
   get_url: url={{ item.url }} dest={{ item.dest }}
   with_items:
-    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1-testing.repo', dest: '/etc/yum.repos.d/indigo1-testing.repo' }
+    - { url: 'http://repo.indigo-datacloud.eu/repos/1/indigo1.repo', dest: '/etc/yum.repos.d/indigo1.repo' }
+    - { url: 'http://repo.indigo-datacloud.eu/repository/RPM-GPG-KEY-indigodc', dest: '/etc/pki/rpm-gpg/RPM-GPG-KEY-indigodc' }
 
 #################################################
 # Tasks to install packages
@@ -85,8 +86,11 @@
   args:
     executable: /bin/bash
 
-- name: RedHat | Create user for Ophidia framwork
+- name: RedHat | Create user for Ophidia
   user: name={{ oph_user }} shell=/bin/bash generate_ssh_key=yes ssh_key_bits=2048
+
+- name: RedHat | Create passwd for Ophidia user
+  shell: echo {{ oph_user }}:{{ oph_passwd }} | chpasswd
 
 - name: RedHat | sudo does not require tty
   lineinfile:
@@ -208,26 +212,27 @@
   become: true
   become_user: mysql
 
+- name: RedHat | Remove MySQL flag
+  file: path=/root/started state=absent
+
 - name: RedHat | Start mysql_safe
-  shell: /usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &
+  shell: pgrep mysqld_safe || (/usr/bin/mysqld_safe --user=mysql 2>&1 > /dev/null &) && (touch /root/started)
   args:
     executable: /bin/bash
 
 - name: RedHat | Wait for mysql start
-  shell: sleep 10
+  wait_for: path=/var/lib/mysql/mysql.sock
+
+- name: RedHat | Set mysql root passwd
+  shell: if [ -e /root/started ]; then /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'; fi
   args:
     executable: /bin/bash
 
-####
-# This task is the correct way to set the mysql roo passwd but not working properly
-# will have to check the problem
-#
-#- name: RedHat | set the mysql root user passwd
-#  mysql_user: name=root password={{ cert_passwd }}
+- name: RedHat | Remove MySQL flag
+  file: path=/root/started state=absent
 
-# this task is temporary: set explicitely the mysql root passwd
-- name: RedHat | Set mysql root passwd
-  command: /usr/bin/mysqladmin -u root password '{{ cert_passwd }}'
+- name: RedHat | Remove MySQL configuration
+  file: path=/home/{{ oph_user }}/.my.cnf state=absent
 
 - name: RedHat | Copy template of .my.cnf to oph_user
   template:
@@ -236,6 +241,9 @@
     mode=0600
     owner={{ oph_user }}
     group={{ oph_user }}
+
+- name: RedHat | Remove MySQL configuration
+  file: path=/root/.my.cnf state=absent
 
 - name: RedHat | Copy template of .my.cnf to root
   template:
@@ -254,7 +262,7 @@
 - name: RedHat | import ophidia analytics db
   mysql_db: name=ophidiadb state=import target=/usr/local/ophidia/oph-cluster/oph-analytics-framework/etc/ophidiadb.sql
 
-- name: RedHat | Copy template of .my.cnf to root
+- name: RedHat | Copy template of ophdb-host to root
   template:
     src=ophdb-host.sql.j2
     dest=/tmp/ophdb-host.sql
@@ -312,6 +320,19 @@
 - name: RedHat | Remove nologin
   file: path=/run/nologin state=absent
 
+- name: RedHat | Set known_hosts
+  shell: ssh-keyscan 127.0.0.1 >> known_hosts
+  args:
+    chdir: /home/{{ oph_user }}/.ssh
+    executable: /bin/bash
+  become: yes
+  become_user: "{{ oph_user }}"
+
+- name: RedHat | Set permissions on known_hosts
+  file: path=/home/{{ oph_user }}/.ssh/known_hosts mode=644 owner={{ oph_user }} group={{ oph_user }}
+  become: yes
+  become_user: "{{ oph_user }}"
+
 #######################################################
 # Tasks to set permissions
 - name: RedHat | Set permissions on Ophidia folders
@@ -323,7 +344,7 @@
 #######################################################
 # Task to start Ophidia service
 - name: RedHat | Start ophidia server
-  shell: oph_server 2>&1 > /dev/null &
+  shell: oph_server 2>&1 > /dev/null < /dev/null &
   args:
     executable: /bin/bash
   become: yes
@@ -414,4 +435,20 @@
     mode=0644
     owner={{ oph_user }}
     group={{ oph_user }}
+
+#######################################################
+# Task to configure Ophidia terminal
+- name: RedHat | Configure ophidia terminal
+  lineinfile:
+    dest=/home/{{ oph_user }}/.bashrc
+    line='export {{ item }}'
+    insertafter='EOF'
+    state=present
+  become: yes
+  become_user: "{{ oph_user }}"
+  with_items:
+    - OPH_USER={{ oph_term_user }}
+    - OPH_PASSWD={{ oph_term_passwd }}
+    - OPH_SERVER_HOST={{ oph_term_host }}
+    - OPH_SERVER_PORT={{ oph_term_port }}
 

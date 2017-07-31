@@ -1,10 +1,9 @@
 ---
 cert_passwd: 'abcd'
 oph_user: 'ophuser'
+oph_passwd: 'abcd'
+oph_term_user: 'oph-test'
+oph_term_passwd: 'abcd'
+oph_term_host: '127.0.0.1'
+oph_term_port: '11732'
 
-##
-# These variables are temporary until we have the rpms in the indigo repo
-##
-
-#oph_rpms: 'https://jenkins.indigo-datacloud.eu:8080/user/admin/my-views/view/INDIGO-RELEASE/job/ophidia-packaging/lastSuccessfulBuild/artifact/RPMS/'
-#slurm_rpms: 'http://www.lip.pt/~david/RPMS/x86_64/'

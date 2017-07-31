@@ -1,14 +1,12 @@
-Role Name
-=========
+Role for Ophidia Big Data Framework
+===================================
 
-The ansible role deploys and configures all services for the Ophidia Big
-Data Framework
+The ansible role deploys and configures all services for the Ophidia Big Data Framework
 
 Introduction
 ------------
 
-The repository contains ansible-roles that are published in
-ansible galaxy: https://galaxy.ansible.com/indigo-dc/ophidia-all/
+The repository contains ansible-roles that are published in ansible galaxy: https://galaxy.ansible.com/indigo-dc/ophidia-all/
 
 The directories docker-ophidia-all are linked to
 dockerhub with automatic build of image.
@@ -23,8 +21,13 @@ Role Variables
 
 Default role varibles are:
 
-1. oph_user: user that will run the framework
-2. cert_passwd: the password for the certificates, user account and mysql
+1. cert_passwd: the password for the certificates, user account and mysql
+2. oph_user: user that will run the framework
+3. oph_passwd: user password
+4. oph_term_user: Ophidia user to access the service
+5. oph_term_passwd: Ophidia password
+6. oph_term_host: hostname or ip address of the node hosting Ophidia service
+7. oph_term_port: port number of Ophidia service
 
 Dependencies
 ------------
@@ -35,10 +38,9 @@ Example Playbook
 ----------------
 
 
-An example of playbook to deploy ambertools:
+An example of playbook to deploy Ophidia:
 
-```
----
+```yaml
 - hosts: localhost
   roles:
     - { role: indigo-dc.ophidia-all }
